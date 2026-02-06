@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>2026 Funky Canvas</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400&family=Press+Start+2P&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+  }
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+  const c = document.getElementById("canvas");
+  const x = c.getContext("2d");
+
+  let Y;
+  let O = 0;
+  let D = 1;
+
+  function A() {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    Y = c.height * 0.4;
+  }
+
+  A();
+  window.addEventListener('resize', A);
+
+  const z = Array.from({ length: 15 }, () => ({
+    x: Math.random() * c.width,
+    y: c.height + Math.random() * 200,
+    r: Math.random() * 10 + 6,
+    s: Math.random() * 0.8 + 0.4,
+    h: Math.random() * 360
+  }));
+
+  let k = [];
+  let f = false;
+  let p;
+
+  function r() {
+    const g = x.createLinearGradient(0, 0, c.width, c.height);
+    g.addColorStop(0, "#00ff00");
+    g.addColorStop(1, "#009900");
+
+    x.fillStyle = g;
+    x.fillRect(0, 0, c.width, c.height);
+  }
+
+  function t() {
+    x.textAlign = "center";
+    x.shadowColor = "rgba(255, 50, 255, 0.7)";
+    x.shadowBlur = 18;
+
+    const K = Y + O;
+    x.font = "400 52px 'Press Start 2P'";
+    x.fillStyle = "#FF00FF";
+    x.fillText("Duniya Khatam Hai?", c.width / 2, K);
+
+    x.font = "700 25px 'Comic Neue'";
+    x.fillStyle = "#FF69B4";
+    x.fillText("Muaaaahhhhhhhh", c.width / 2, K + 60);
+
+    x.shadowBlur = 0;
+  }
+
+  function u() {
+    z.forEach(e => {
+      x.beginPath();
+      x.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+      x.fillStyle = `hsla(${(e.h + Date.now() * 0.05) % 360}, 100%, 60%, 0.7)`;
+      x.fill();
+
+      e.y -= e.s;
+      e.x += Math.sin(e.y * 0.05 + Date.now() * 0.001) * 0.5;
+
+      if (e.y < -e.r) {
+        e.y = c.height + e.r + Math.random() * 50;
+        e.x = Math.random() * c.width;
+        e.h = Math.random() * 360;
+      }
+    });
+  }
+
+  function s() {
+    k = [];
+    for (let i = 0; i < 200; i++) {
+      k.push({
+        x: c.width / 2 + (Math.random() - 0.5) * 60,
+        y: c.height / 2 + (Math.random() - 0.5) * 60,
+        w: Math.random() * 12 + 6,
+        h: Math.random() * 12 + 6,
+        C: `hsl(${Math.random() * 360}, 100%, 65%)`,
+        V: (Math.random() - 0.5) * 25,
+        v: (Math.random() - 1.2) * 25,
+        R: Math.random() * Math.PI * 2,
+        rV: (Math.random() - 0.5) * 0.2,
+        o: 1
+      });
+    }
+  }
+
+  function v() {
+    if (f) {
+      k = k.filter(e => e.o > 0.01 && e.y < c.height + e.h);
+
+      k.forEach(e => {
+        e.x += e.V;
+        e.y += e.v;
+        e.v += 0.6;
+        e.R += e.rV;
+        e.o -= 0.005;
+
+        x.save();
+        x.translate(e.x, e.y);
+        x.rotate(e.R);
+        x.fillStyle = e.C;
+        x.globalAlpha = e.o;
+        x.fillRect(-e.w / 2, -e.h / 2, e.w, e.h);
+        x.restore();
+      });
+      x.globalAlpha = 1;
+    }
+  }
+
+  let B = 0;
+  let H = 0;
+  let J = 0;
+  const E = 300;
+  const G = 150;
+
+  function a() {
+    x.clearRect(0, 0, c.width, c.height);
+
+    const I = Date.now();
+    const N = I - J;
+
+    if (J > 0) {
+      if (N < E) {
+        B = 1 - (N / E);
+        if (N < G) {
+          H = Math.random() * 20 * (1 - (N / G));
+        } else {
+          H = 0;
+        }
+      } else {
+        B = 0;
+        H = 0;
+        J = 0;
+      }
+    }
+
+    r();
+    u();
+
+    if (H > 0) {
+      x.save();
+      x.translate((Math.random() - 0.5) * H, (Math.random() - 0.5) * H);
+    }
+
+    v();
+    t();
+
+    if (H > 0) {
+      x.restore();
+    }
+
+    if (B > 0) {
+      x.fillStyle = `rgba(255, 255, 255, ${B})`;
+      x.fillRect(0, 0, c.width, c.height);
+    }
+
+    O += 0.5 * D;
+    if (O > 15 || O < -15) D *= -1;
+
+    requestAnimationFrame(a);
+  }
+
+  a();
+
+  function b() {
+    J = Date.now();
+    setTimeout(() => {
+      f = true;
+      s();
+      p = setInterval(s, 2000);
+    }, E);
+  }
+
+  setTimeout(() => {
+    b();
+  }, 5000);
+</script>
+
+</body>
+</html>
+
